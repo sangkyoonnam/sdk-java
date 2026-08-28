@@ -1,0 +1,7 @@
+jdk:
+  - openjdk21
+before_install:
+  - echo "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g" >> gradle.properties
+  - echo "org.gradle.daemon=false" >> gradle.properties
+install:
+  - ./gradlew :temporal-sdk:publishToMavenLocal -x test --no-daemon -Pversion=$VERSION
