@@ -589,6 +589,11 @@ final class SyncWorkflowContext implements WorkflowContext, WorkflowOutboundCall
                 !options.isEagerExecutionDisabled()
                     && Objects.equals(taskQueue, replayContext.getTaskQueue()));
 
+    // 지정이 없으면 비워 둔다: 기존처럼 SDK 가 시퀀스 id 를 붙인다
+    if (options.getActivityId() != null && !options.getActivityId().isEmpty()) {
+      attributes.setActivityId(options.getActivityId());
+    }
+
     input.ifPresent(attributes::setInput);
     RetryOptions retryOptions = options.getRetryOptions();
     if (retryOptions != null) {

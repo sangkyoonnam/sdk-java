@@ -48,6 +48,7 @@ public final class ActivityOptions {
 
     private String summary;
     private Priority priority;
+    private String activityId;
 
     private Builder() {}
 
@@ -67,6 +68,7 @@ public final class ActivityOptions {
       this.versioningIntent = options.versioningIntent;
       this.summary = options.summary;
       this.priority = options.priority;
+      this.activityId = options.activityId;
     }
 
     /**
@@ -244,6 +246,23 @@ public final class ActivityOptions {
     }
 
     /**
+     * Business-level identifier for this Activity Execution. Enables completing the Activity
+     * asynchronously by id (Namespace, Workflow Id, Activity Id) instead of by task token.
+     *
+     * <p>This is an advanced setting. When set, the caller owns uniqueness: two Activity Executions
+     * with the same id must not run in parallel within the same Workflow Execution. The value must
+     * also be deterministic across replay, so derive it from Workflow state or {@code
+     * Workflow.sideEffect} rather than generating it directly in Workflow code.
+     *
+     * <p>Default is none, in which case the SDK assigns a sequence number.
+     */
+    @Experimental
+    public Builder setActivityId(String activityId) {
+      this.activityId = activityId;
+      return this;
+    }
+
+    /**
      * Optional priority settings that control relative ordering of task processing when tasks are
      * backed up in a queue.
      *
@@ -291,6 +310,7 @@ public final class ActivityOptions {
       }
       this.summary = (override.summary == null) ? this.summary : override.summary;
       this.priority = (override.priority == null) ? this.priority : override.priority;
+      this.activityId = (override.activityId == null) ? this.activityId : override.activityId;
       return this;
     }
 
@@ -315,7 +335,8 @@ public final class ActivityOptions {
           disableEagerExecution,
           versioningIntent,
           summary,
-          priority);
+          priority,
+          activityId);
     }
 
     @SuppressWarnings("deprecation")
@@ -334,7 +355,8 @@ public final class ActivityOptions {
               ? VersioningIntent.VERSIONING_INTENT_UNSPECIFIED
               : versioningIntent,
           summary,
-          priority);
+          priority,
+          activityId);
     }
   }
 
@@ -353,6 +375,7 @@ public final class ActivityOptions {
 
   private final String summary;
   private final Priority priority;
+  private final String activityId;
 
   private ActivityOptions(
       Duration heartbeatTimeout,
@@ -366,7 +389,8 @@ public final class ActivityOptions {
       boolean disableEagerExecution,
       @SuppressWarnings("deprecation") VersioningIntent versioningIntent,
       String summary,
-      Priority priority) {
+      Priority priority,
+      String activityId) {
     this.heartbeatTimeout = heartbeatTimeout;
     this.scheduleToStartTimeout = scheduleToStartTimeout;
     this.scheduleToCloseTimeout = scheduleToCloseTimeout;
@@ -379,6 +403,7 @@ public final class ActivityOptions {
     this.versioningIntent = versioningIntent;
     this.summary = summary;
     this.priority = priority;
+    this.activityId = activityId;
   }
 
   /**
@@ -460,6 +485,14 @@ public final class ActivityOptions {
     return priority;
   }
 
+  /**
+   * @see ActivityOptions.Builder#setActivityId(String)
+   */
+  @Experimental
+  public String getActivityId() {
+    return activityId;
+  }
+
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -480,7 +513,8 @@ public final class ActivityOptions {
         && disableEagerExecution == that.disableEagerExecution
         && versioningIntent == that.versioningIntent
         && Objects.equal(summary, that.summary)
-        && Objects.equal(priority, that.priority);
+        && Objects.equal(priority, that.priority)
+        && Objects.equal(activityId, that.activityId);
   }
 
   @Override
@@ -497,7 +531,8 @@ public final class ActivityOptions {
         disableEagerExecution,
         versioningIntent,
         summary,
-        priority);
+        priority,
+        activityId);
   }
 
   @Override
@@ -528,6 +563,8 @@ public final class ActivityOptions {
         + summary
         + ", priority="
         + priority
+        + ", activityId="
+        + activityId
         + '}';
   }
 }

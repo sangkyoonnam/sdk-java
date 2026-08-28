@@ -190,4 +190,49 @@ public class ActivityOptionsTest {
     assertEquals(Duration.ofSeconds(1), retryOptions.getInitialInterval());
     assertNull(retryOptions.getMaximumInterval());
   }
+
+  @Test
+  public void testActivityIdDefaultsToNull() {
+    assertNull(ActivityOptions.newBuilder().build().getActivityId());
+  }
+
+  @Test
+  public void testActivityIdIsCarriedThroughBuildAndCopy() {
+    ActivityOptions options = ActivityOptions.newBuilder().setActivityId("order-42").build();
+    assertEquals("order-42", options.getActivityId());
+    assertEquals("order-42", ActivityOptions.newBuilder(options).build().getActivityId());
+    assertEquals(
+        "order-42",
+        ActivityOptions.newBuilder()
+            .setActivityId("order-42")
+            .setStartToCloseTimeout(Duration.ofSeconds(5))
+            .validateAndBuildWithDefaults()
+            .getActivityId());
+  }
+
+  @Test
+  public void testActivityIdOverrideOnMerge() {
+    ActivityOptions base = ActivityOptions.newBuilder().setActivityId("base").build();
+    ActivityOptions override = ActivityOptions.newBuilder().setActivityId("override").build();
+
+    assertEquals(
+        "override",
+        ActivityOptions.newBuilder(base).mergeActivityOptions(override).build().getActivityId());
+    assertEquals(
+        "base",
+        ActivityOptions.newBuilder(base)
+            .mergeActivityOptions(ActivityOptions.newBuilder().build())
+            .build()
+            .getActivityId());
+  }
+
+  @Test
+  public void testActivityIdParticipatesInEqualityAndToString() {
+    ActivityOptions withId = ActivityOptions.newBuilder().setActivityId("a").build();
+    ActivityOptions withoutId = ActivityOptions.newBuilder().build();
+
+    assertNotEquals(withId, withoutId);
+    assertNotEquals(withId.hashCode(), withoutId.hashCode());
+    assertTrue(withId.toString().contains("activityId=a"));
+  }
 }
